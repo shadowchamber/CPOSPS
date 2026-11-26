@@ -20,7 +20,7 @@ Publisher ID (from dashboard URL): `23340994-fe66-4dbb-9a44-c08e312ff1bf`
 
 ## Screenshots / icons
 
-- Screenshots: `extension/screenshots/01-sidepanel.png`, `02-options.png` (1280×800) — upload in the dashboard listing.
+- Screenshots: put **real** captures of the loaded extension in `extension/screenshots/` (1280×800 or 640×400), then upload those in the dashboard. Do not use mock/generated images.
 - Icons: `extension/icons/icon{16,32,48,128}.png` (bundled in the zip).
 
 ## Store description draft
