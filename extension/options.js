@@ -8,8 +8,7 @@ function isLegacyApiBase(base) {
     /:446\/SIM\/?$/i.test(b) ||
     /\/SIM\/?$/i.test(b) ||
     /localhost:5058\/?$/i.test(b) ||
-    /127\.0\.0\.1:5058\/?$/i.test(b) ||
-    /erp-iig-ude-016/i.test(b)
+    /127\.0\.0\.1:5058\/?$/i.test(b)
   );
 }
 

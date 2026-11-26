@@ -1,3 +1,9 @@
+/**
+ * Seed a legacy SIM apiBase and confirm migration to localhost Hardware Station.
+ * Usage:
+ *   set PLAYWRIGHT_NODE_MODULES=<dir that contains playwright>
+ *   node scripts/verify-legacy-migrate.mjs
+ */
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import os from "node:os";
@@ -5,10 +11,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const requireFromIig = createRequire("C:/_sources/DROP-CDRO/D365Commerce/src/IIGCore/package.json");
-const { chromium } = requireFromIig("playwright");
+const playwrightRoot = process.env.PLAYWRIGHT_NODE_MODULES;
+if (!playwrightRoot) {
+  console.error("Set PLAYWRIGHT_NODE_MODULES to a folder that contains playwright (node_modules parent or package root).");
+  process.exit(1);
+}
+const requireFrom = createRequire(path.join(playwrightRoot, "package.json"));
+const { chromium } = requireFrom("playwright");
 const extensionPath = path.resolve(__dirname, "..").split("\\").join("/");
-const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptw-ext-mig-"));
+const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cposps-ext-mig-"));
+const legacyBase = process.env.CPOSPS_LEGACY_API_BASE || "https://127.0.0.1:446/SIM";
 
 const context = await chromium.launchPersistentContext(userDataDir, {
   headless: false,
@@ -22,10 +34,9 @@ try {
   const extId = new URL(worker.url()).host;
   const panel = await context.newPage();
   await panel.goto(`chrome-extension://${extId}/sidepanel.html`, { waitUntil: "domcontentloaded" });
-  // Seed legacy value then reload
-  await panel.evaluate(async () => {
-    await chrome.storage.sync.set({ apiBase: "https://erp-iig-ude-016:446/SIM" });
-  });
+  await panel.evaluate(async (base) => {
+    await chrome.storage.sync.set({ apiBase: base });
+  }, legacyBase);
   await panel.reload({ waitUntil: "domcontentloaded" });
   await panel.waitForFunction(() => {
     const el = document.getElementById("api-label");

@@ -17,8 +17,7 @@
     <PackageTags>dynamics;commerce;hardware-station;pos;peripheral;simulator;cposps</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/shadowchamber/CPOSPS</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/shadowchamber/CPOSPS</RepositoryUrl>
+    <!-- Set PackageProjectUrl / RepositoryUrl in CI or a local Directory.Build.props if needed. -->
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>

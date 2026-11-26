@@ -1,6 +1,8 @@
 /**
- * Load PosTerminal.Extension in Playwright, open the side panel, verify HWS API link.
- * Usage: node scripts/verify-extension-api.mjs
+ * Load the extension in Playwright, open the side panel, verify HWS API link.
+ * Usage:
+ *   set PLAYWRIGHT_NODE_MODULES=<dir that contains playwright>
+ *   node scripts/verify-extension-api.mjs
  */
 import { createRequire } from "node:module";
 import fs from "node:fs";
@@ -9,9 +11,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const iigRoot = "C:/_sources/DROP-CDRO/D365Commerce/src/IIGCore";
-const requireFromIig = createRequire(path.join(iigRoot, "package.json"));
-const { chromium } = requireFromIig("playwright");
+const playwrightRoot = process.env.PLAYWRIGHT_NODE_MODULES;
+if (!playwrightRoot) {
+  console.error("Set PLAYWRIGHT_NODE_MODULES to a folder that contains playwright (node_modules parent or package root).");
+  process.exit(1);
+}
+const requireFrom = createRequire(path.join(playwrightRoot, "package.json"));
+const { chromium } = requireFrom("playwright");
 
 const extensionPath = path.resolve(__dirname, "..").split("\\").join("/");
 const manifestPath = path.join(extensionPath, "manifest.json");
@@ -20,8 +26,8 @@ if (!fs.existsSync(manifestPath)) {
   process.exit(1);
 }
 
-const expectedBase = "https://erp-iig-ude-016:450/HardwareStation";
-const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptw-ext-"));
+const expectedBase = process.env.CPOSPS_API_BASE || "https://localhost:450/HardwareStation";
+const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cposps-ext-"));
 
 const context = await chromium.launchPersistentContext(userDataDir, {
   headless: false,

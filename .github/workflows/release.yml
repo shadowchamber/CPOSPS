@@ -80,13 +80,15 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: shadowchamber
+          user: ${{ secrets.NUGET_USER }}
 
       - name: Push to nuget.org
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+          NUGET_USER: ${{ secrets.NUGET_USER }}
         run: |
           $ErrorActionPreference = 'Stop'
+          if (-not $env:NUGET_USER) { throw 'NUGET_USER secret is not set (nuget.org profile name).' }
           if (-not $env:NUGET_API_KEY) { throw 'NuGet OIDC login did not produce NUGET_API_KEY' }
           $pkgs = @(Get-ChildItem -Path artifacts -Filter *.nupkg -ErrorAction Stop)
           if ($pkgs.Count -eq 0) { throw 'No .nupkg files in artifacts/ — nothing to push' }

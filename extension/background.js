@@ -4,7 +4,7 @@ let lastWindowId = chrome.windows.WINDOW_ID_NONE;
 let panelOpen = false;
 
 function isLegacyApiBase(base) {
-  return !base || /erp-iig-ude-016/i.test(base) || /:446\/SIM\/?$/i.test(base) || /\/SIM\/?$/i.test(base) || /localhost:5058\/?$/i.test(base) || /127\.0\.0\.1:5058\/?$/i.test(base);
+  return !base || /:446\/SIM\/?$/i.test(base) || /\/SIM\/?$/i.test(base) || /localhost:5058\/?$/i.test(base) || /127\.0\.0\.1:5058\/?$/i.test(base);
 }
 
 async function ensureApiBase() {

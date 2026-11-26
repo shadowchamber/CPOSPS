@@ -32,7 +32,7 @@
   function isLegacyApiBase(base) {
     const b = String(base || "").trim();
     if (!b) return true;
-    return /:446\/SIM\/?$/i.test(b) || /\/SIM\/?$/i.test(b) || /localhost:5058\/?$/i.test(b) || /127\.0\.0\.1:5058\/?$/i.test(b) || /erp-iig-ude-016/i.test(b);
+    return /:446\/SIM\/?$/i.test(b) || /\/SIM\/?$/i.test(b) || /localhost:5058\/?$/i.test(b) || /127\.0\.0\.1:5058\/?$/i.test(b);
   }
 
   function normalizeBase(base) {

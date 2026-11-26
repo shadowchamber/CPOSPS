@@ -23,7 +23,7 @@ Uses:
 
 `host_permissions` cover localhost and 127.0.0.1 (HTTP/HTTPS on port 450). Other hosts: Options → optional host permission.
 
-Legacy lab defaults (e.g. old SIM URLs or `erp-iig-ude-016`) are migrated to localhost automatically.
+Legacy lab defaults (old SIM / alternate local ports) are migrated to the localhost Hardware Station base automatically.
 
 ## Side panel left / right
 

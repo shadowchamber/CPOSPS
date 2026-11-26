@@ -1,16 +1,13 @@
 # Chrome Web Store listing checklist (CPOSPS)
 
-Dashboard: [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/23340994-fe66-4dbb-9a44-c08e312ff1bf)
-
-Publisher ID (from dashboard URL): `23340994-fe66-4dbb-9a44-c08e312ff1bf`
+Dashboard: [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
 
 ## Product
 
 - **Name:** CPOSPS
 - **Short description:** Side panel for Hardware Station PosTerminal peripherals (scanner, drawers, MSR, PIN, scale, printer, light, and more).
 - **Default API base:** `https://localhost:450/HardwareStation`
-- **Privacy policy URL (listing):** `https://shadowchamber.github.io/CPOSPS/privacy.html`  
-  (enable GitHub Pages → Deploy from branch `main` / folder `/docs`, or host `docs/privacy.html` elsewhere and update this URL)
+- **Privacy policy URL (listing):** host `docs/privacy.html` (or `extension/privacy.html`) on a public HTTPS URL you control, then paste that URL in the listing.
 
 ## Privacy
 
@@ -62,7 +59,7 @@ Chrome Web Store API has **no** GitHub OIDC — long-lived OAuth secrets are req
 2. Create OAuth **Desktop** client → save Client ID + Client Secret.  
    Guide: [chrome-webstore-upload-keys](https://github.com/fregante/chrome-webstore-upload-keys).
 3. Locally: `npx chrome-webstore-upload-keys` → get Refresh Token (browser consent as the same Google account that owns the dashboard).
-4. In the [dashboard](https://chrome.google.com/webstore/devconsole/23340994-fe66-4dbb-9a44-c08e312ff1bf), create the CPOSPS item if it does not exist yet, note the **extension / item ID** (needed for uploads).
+4. In the developer dashboard, create the CPOSPS item if it does not exist yet; note the **extension / item ID** and your **publisher ID** (from the dashboard URL path).
 
 ### GitHub secrets
 
@@ -70,7 +67,7 @@ Repo → Settings → Secrets and variables → Actions:
 
 | Secret | Value |
 |--------|--------|
-| `CHROME_PUBLISHER_ID` | `23340994-fe66-4dbb-9a44-c08e312ff1bf` |
+| `CHROME_PUBLISHER_ID` | Publisher UUID from your dashboard URL |
 | `CHROME_EXTENSION_ID` | Extension / item ID from the dashboard item |
 | `CHROME_CLIENT_ID` | OAuth client id |
 | `CHROME_CLIENT_SECRET` | OAuth client secret |
@@ -79,10 +76,10 @@ Repo → Settings → Secrets and variables → Actions:
 ### First publish flow
 
 1. Set the five secrets above.
-2. Enable GitHub Pages for `/docs` (privacy URL) **or** paste another public privacy URL in the listing.
-3. In the dashboard: create listing, upload screenshots from `extension/screenshots/`, set privacy URL, single-purpose + permissions justification.
+2. Host a public privacy policy URL and set it on the listing.
+3. In the dashboard: create listing, upload real screenshots, set privacy URL, single-purpose + permissions justification.
 4. Actions → **Publish Extension** → Run workflow (upload only first), confirm package appears as draft.
-5. Re-run with `publish_live=true`, or push tag `extension-v1.0.0` (must match `manifest.json` version when you care about version alignment).
+5. Re-run with `publish_live=true`, or push tag `extension-v1.0.0` (align with `manifest.json` version when you care about version alignment).
 
 Bump `extension/manifest.json` `version` before each Store upload.
 
@@ -90,8 +87,8 @@ Bump `extension/manifest.json` `version` before each Store upload.
 
 - [ ] Manifest name is **CPOSPS**
 - [ ] Icons 16/32/48/128 present
-- [ ] Privacy policy URL set (GitHub Pages or other HTTPS)
-- [ ] Screenshots uploaded from `extension/screenshots/`
+- [ ] Privacy policy URL set (public HTTPS you control)
+- [ ] Screenshots uploaded from `extension/screenshots/` (real captures)
 - [ ] Single purpose justified (POS peripheral simulation UI)
 - [ ] Host / optional host permissions explained in listing
 - [ ] GitHub secrets set; test `Publish Extension` upload

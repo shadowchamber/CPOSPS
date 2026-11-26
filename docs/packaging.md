@@ -30,8 +30,8 @@ CI: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 - Triggers: tag `v*` or `workflow_dispatch`
 - Auth: NuGet Trusted Publishing (OIDC) via `NuGet/login@v1` — no long-lived `NUGET_API_KEY`
 - GitHub Environment: `production` (must exist on the repo; matches nuget.org policy)
-- nuget.org user: `shadowchamber`
-- Push URL: `https://api.nuget.org/v3/index.json`
+- nuget.org user: from secret `NUGET_USER` (profile name, not email)
+- Push URL: nuget.org v3 API
 
 Manual (local API key still fine):
 
@@ -44,7 +44,7 @@ dotnet nuget push artifacts\CPOSPS.*.nupkg `
 
 ## Version pins
 
-Pinned in the csproj from the IIGCore `HardwareStation.PosTerminalWeb` `packages.lock.json`:
+Pinned in the csproj (aligned to Hardware Station PosTerminal.Web lockfile versions):
 
 - `Microsoft.Dynamics.Commerce.Sdk.HardwareAndPeripherals` 9.59.26286.5
 - `Newtonsoft.Json` 13.0.3

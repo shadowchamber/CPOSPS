@@ -11,7 +11,7 @@ name: Publish Extension
 #   CHROME_CLIENT_ID      — Google Cloud OAuth desktop client id
 #   CHROME_CLIENT_SECRET  — OAuth client secret
 #   CHROME_REFRESH_TOKEN  — from: npx chrome-webstore-upload-keys
-#   CHROME_PUBLISHER_ID   — publisher UUID (dashboard URL path), e.g. 23340994-fe66-4dbb-9a44-c08e312ff1bf
+#   CHROME_PUBLISHER_ID   — publisher UUID (from your Chrome Web Store dashboard URL path)
 #
 # Setup: docs/chrome-web-store.md
 
