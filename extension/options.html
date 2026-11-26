@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CPOSPS — Options</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <h1>CPOSPS</h1>
+  <p class="hint">Chrome POS Peripheral Simulator — Hardware Station API target.</p>
+  <label>
+    API base URL
+    <input id="apiBase" type="url" placeholder="https://localhost:450/HardwareStation" />
+  </label>
+  <p class="hint">No trailing slash. Default: <code>https://localhost:450/HardwareStation</code></p>
+  <p class="hint">Saving a non-localhost host requests optional host permission for that origin.</p>
+  <p class="hint">Side panel left/right is a browser setting (Chrome/Edge appearance → side panel).</p>
+  <div class="row">
+    <button id="save" type="button">Save</button>
+    <button id="reset" type="button" class="ghost">Reset default</button>
+    <span id="status" hidden></span>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

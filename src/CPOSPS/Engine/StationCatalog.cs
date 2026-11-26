@@ -1,0 +1,77 @@
+namespace IIGCore.HardwareStation.PosTerminalWeb.Engine
+{
+    public static class StationCatalog
+    {
+        public static readonly string[] Routes = new[]
+        {
+            "Deviceinfo/GetOposDeviceDrivers",
+            "BarcodeScanner/Lock",
+            "BarcodeScanner/GetBarcodes",
+            "BarcodeScanner/UnLock",
+            "CashDrawer/Claim",
+            "CashDrawer/Release",
+            "CashDrawer/Open",
+            "CashDrawer/Close",
+            "CashDrawer/IsOpen",
+            "LineDisplay/Lock",
+            "LineDisplay/DisplayText",
+            "LineDisplay/ClearDisplay",
+            "LineDisplay/UnLock",
+            "Msr/Lock",
+            "Msr/GetMsrSwipeInfo",
+            "Msr/UnLock",
+            "PinPad/Lock",
+            "PinPad/GetPinEntry",
+            "PinPad/CancelOperation",
+            "PinPad/Unlock",
+            "Printer/Print",
+            "Scale/Read",
+            "SignatureCapture/Lock",
+            "SignatureCapture/GetSignature",
+            "SignatureCapture/CancelOperation",
+            "SignatureCapture/Unlock",
+            "RemoteOrderDisplay/DisplayMessage",
+            "RemoteOrderDisplay/ClearDisplay",
+            "Light/SwitchOn",
+            "Light/SwitchOff",
+            "CoinDispenser/DispenseChange",
+            "PaymentTerminal/Lock",
+            "PaymentTerminal/UpdateLineItems",
+            "PaymentTerminal/AuthorizePayment",
+            "PaymentTerminal/CapturePayment",
+            "PaymentTerminal/RefundPayment",
+            "PaymentTerminal/VoidPayment",
+            "PaymentTerminal/Unlock"
+        };
+
+        public static readonly string[] OposDrivers = new[]
+        {
+            "MockOPOSScanner",
+            "MockOPOSDrawer1",
+            "MockOPOSDrawer2",
+            "MockOPOSMSR",
+            "MockOPOSPinPad",
+            "MockOPOSPrinter",
+            "MockOPOSScale",
+            "MockOPOSSignatureCapture",
+            "MockOPOSLineDisplay",
+            "MOCKPAYMENTTERMINAL",
+            "MockOPOSLight",
+            "MockOPOSCoinDispenser",
+            "MockOPOSRemoteOrderDisplay",
+            "PTWScanner",
+            "PTWDrawer1",
+            "PTWDrawer2",
+            "PTWMSR",
+            "PTWPinPad",
+            "PTWPrinter",
+            "PTWScale",
+            "PTWSignatureCapture",
+            "PTWLineDisplay",
+            "PTWPAYMENTTERMINAL",
+            "PTWLight",
+            "PTWCoinDispenser",
+            "PTWRemoteOrderDisplay"
+        };
+    }
+}

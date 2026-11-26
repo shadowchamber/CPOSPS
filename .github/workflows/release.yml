@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Optional package version override (e.g. 1.0.1). Leave empty to use csproj Version.'
+        required: false
+        default: ''
+
+jobs:
+  pack-and-publish:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Resolve version from tag
+        id: ver
+        run: |
+          $override = '${{ github.event.inputs.version }}'.Trim()
+          if ($override) {
+            Write-Host "Using workflow_dispatch version: $override"
+            "version=$override" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            return
+          }
+          $ref = '${{ github.ref }}'
+          if ($ref -match 'refs/tags/v(.+)$') {
+            $v = $Matches[1]
+            Write-Host "Using tag version: $v"
+            "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            Write-Host 'No tag/override; using csproj Version'
+            "version=" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      - name: Restore
+        run: dotnet restore CPOSPS.sln --configfile nuget.config
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+          DOTNET_NOLOGO: true
+
+      - name: Pack
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $args = @('pack','src/CPOSPS/CPOSPS.csproj','-c','Release','-o','artifacts','--no-restore')
+          $v = '${{ steps.ver.outputs.version }}'.Trim()
+          if ($v) { $args += "/p:Version=$v"; $args += "/p:PackageVersion=$v" }
+          & dotnet @args
+
+      - name: Upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: cposps-nupkg-release
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+      - name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if (-not $env:NUGET_API_KEY) {
+            throw 'NUGET_API_KEY secret is not set. Add it under repository Secrets.'
+          }
+          Get-ChildItem artifacts -Filter *.nupkg | ForEach-Object {
+            Write-Host "Pushing $($_.Name)"
+            dotnet nuget push $_.FullName `
+              --api-key $env:NUGET_API_KEY `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+          }

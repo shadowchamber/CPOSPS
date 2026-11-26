@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-pack:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Restore
+        run: dotnet restore CPOSPS.sln --configfile nuget.config
+        env:
+          # Optional: if the Dynamics feed requires a PAT in CI, map it here.
+          # NUGET_AUTH_TOKEN: ${{ secrets.DYNAMICS_COMMERCE_NUGET_PAT }}
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+          DOTNET_NOLOGO: true
+
+      - name: Build
+        run: dotnet build CPOSPS.sln -c Release --no-restore
+
+      - name: Pack
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          dotnet pack src/CPOSPS/CPOSPS.csproj -c Release -o artifacts --no-restore
+
+      - name: Upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: cposps-nupkg
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          if-no-files-found: warn
+
+      - name: Verify extension branding
+        run: |
+          $m = Get-Content extension/manifest.json -Raw | ConvertFrom-Json
+          if ($m.name -ne 'CPOSPS') { throw "manifest name expected CPOSPS, got $($m.name)" }
+          $js = Get-Content extension/options.js -Raw
+          if ($js -notmatch 'https://localhost:450/HardwareStation') {
+            throw 'options.js default API base must be https://localhost:450/HardwareStation'
+          }
+          Write-Host 'Extension checks OK'

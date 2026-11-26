@@ -1,0 +1,31 @@
+## Build
+bin/
+obj/
+out/
+artifacts/
+*.nupkg
+*.snupkg
+*.user
+*.suo
+.vs/
+*.DotSettings.user
+
+## IDE / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+## Extension packaging
+extension/dist/
+extension/*.zip
+*.crx
+*.pem
+
+## Secrets / local
+*.local.json
+.env
+.env.*
+nuget.config.user

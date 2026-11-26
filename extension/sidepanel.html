@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CPOSPS</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header class="top">
+    <div>
+      <strong>CPOSPS</strong>
+      <p id="link-status" class="status">Connecting…</p>
+    </div>
+    <div class="top-actions">
+      <label class="theme-switch" title="Theme">
+        <input type="checkbox" id="theme-toggle" />
+        <span class="theme-track" aria-hidden="true"><i></i></span>
+        <span class="theme-label" id="theme-label">Dark</span>
+      </label>
+      <button type="button" class="ghost" id="btn-refresh" title="Refresh">↻</button>
+      <button type="button" class="ghost" id="btn-options" title="Options">⚙</button>
+    </div>
+  </header>
+
+  <p id="api-label" class="api-label"></p>
+
+  <section class="mod">
+    <header>Line display</header>
+    <p id="line-display" class="readout">—</p>
+    <input id="line-edit" type="text" placeholder="Customer display text" />
+    <div class="row">
+      <button type="button" class="act" id="btn-line-set">Set</button>
+      <button type="button" class="ghost" id="btn-line-clear">Clear</button>
+    </div>
+  </section>
+
+  <section class="mod">
+    <header>Lane light</header>
+    <div class="light-row readout">
+      <span class="led" id="lane-light" data-on="false" aria-hidden="true"></span>
+      <span class="led" id="lane-light-2" data-on="false" aria-hidden="true"></span>
+      <p id="light-status">—</p>
+    </div>
+    <select id="light-color">
+      <option value="262144">Green</option>
+      <option value="131072">Yellow</option>
+      <option value="65536">Red</option>
+    </select>
+    <div class="row">
+      <button type="button" class="act" id="btn-light-on">On</button>
+      <button type="button" class="ghost" id="btn-light-off">Off</button>
+    </div>
+  </section>
+
+  <section class="mod">
+    <header>Cash drawers</header>
+    <div class="row">
+      <button type="button" class="act drawer" id="btn-drawer-main" data-open="false">Drawer 1</button>
+      <button type="button" class="act drawer" id="btn-drawer-sec" data-open="false">Drawer 2</button>
+    </div>
+  </section>
+
+  <section class="mod">
+    <header>Barcode scanner</header>
+    <select id="barcode-pick"></select>
+    <div class="row">
+      <button type="button" class="act" id="btn-scan">Scan</button>
+      <button type="button" class="ghost" id="btn-bc-add">Add</button>
+      <button type="button" class="ghost" id="btn-bc-edit">Edit</button>
+    </div>
+    <p id="last-barcode" class="dev-status">—</p>
+    <div id="barcode-setup" class="setup" hidden></div>
+  </section>
+
+  <section class="mod">
+    <header>Scale</header>
+    <p class="readout"><strong id="scale-value">0.000</strong> kg</p>
+    <input id="scale-grams" type="number" min="0" step="1" value="1000" />
+    <select id="scale-pick"></select>
+    <div class="row">
+      <button type="button" class="act" id="btn-scale-set">Set g</button>
+      <button type="button" class="ghost" id="btn-scale-zero">0</button>
+    </div>
+  </section>
+
+  <section class="mod">
+    <header>MSR (loyalty)</header>
+    <select id="loyalty-pick"></select>
+    <div class="row">
+      <button type="button" class="act" id="btn-msr-swipe">Swipe</button>
+      <button type="button" class="ghost" id="btn-loyalty-add">Add</button>
+      <button type="button" class="ghost" id="btn-loyalty-edit">Edit</button>
+    </div>
+  </section>
+
+  <section class="mod">
+    <header>Card read</header>
+    <select id="card-pick"></select>
+    <div class="row">
+      <button type="button" class="act" id="btn-pay-swipe">Pay</button>
+      <button type="button" class="ghost" id="btn-card-add">Add</button>
+      <button type="button" class="ghost" id="btn-card-edit">Edit</button>
+    </div>
+    <div id="card-setup" class="setup" hidden></div>
+  </section>
+
+  <section class="mod">
+    <header>PIN pad</header>
+    <p id="pin-lcd" class="readout pin">AMOUNT 0.00</p>
+    <input id="pin-amount" type="number" min="0" step="0.01" value="0" />
+    <div class="keys" id="pin-keys"></div>
+  </section>
+
+  <section class="mod">
+    <header>Printer / receipt</header>
+    <pre id="receipt-text" class="receipt"></pre>
+    <textarea id="print-text" rows="2" placeholder="Receipt text"></textarea>
+    <div class="row">
+      <button type="button" class="act" id="btn-print">Print</button>
+      <button type="button" class="ghost" id="btn-print-clear">Clear</button>
+    </div>
+  </section>
+
+  <section class="mod">
+    <header>Signature</header>
+    <canvas id="sig-pad" width="260" height="90"></canvas>
+    <div class="row">
+      <button type="button" class="act" id="btn-sig-ok">Accept</button>
+      <button type="button" class="ghost" id="btn-sig-clear">Clear</button>
+    </div>
+  </section>
+
+  <section class="mod">
+    <header>Coin dispenser</header>
+    <input id="coin-amount" type="number" min="0" step="1" value="50" />
+    <div class="row">
+      <button type="button" class="act" id="btn-coin-dispense">Dispense</button>
+      <button type="button" class="ghost" id="btn-coin-test">Test</button>
+    </div>
+    <p id="coin-status" class="dev-status">—</p>
+  </section>
+
+  <section class="mod">
+    <header>Remote order</header>
+    <input id="order-message" type="text" placeholder="Order message" />
+    <div class="row">
+      <button type="button" class="act" id="btn-order-send">Send</button>
+      <button type="button" class="ghost" id="btn-order-clear">Clear</button>
+    </div>
+    <p id="order-status" class="dev-status">—</p>
+  </section>
+
+  <section class="mod">
+    <header>Keyboard wedge</header>
+    <label class="chk"><input type="checkbox" id="wedge-enabled" /> Enabled</label>
+    <input id="wedge-delay" type="number" min="0" step="1" value="2" />
+    <button type="button" class="act" id="btn-wedge-save">Save</button>
+  </section>
+
+  <section class="mod">
+    <header>Payment terminal</header>
+    <div class="row wrap">
+      <button type="button" class="ghost" data-pay-op="AuthorizePayment">Auth</button>
+      <button type="button" class="ghost" data-pay-op="CapturePayment">Capture</button>
+      <button type="button" class="ghost" data-pay-op="RefundPayment">Refund</button>
+      <button type="button" class="ghost" data-pay-op="VoidPayment">Void</button>
+    </div>
+    <p id="pay-status" class="dev-status">—</p>
+  </section>
+
+  <section class="mod">
+    <header>Station API</header>
+    <select id="station-route">
+      <option>Deviceinfo/GetOposDeviceDrivers</option>
+      <option>BarcodeScanner/Lock</option>
+      <option>BarcodeScanner/GetBarcodes</option>
+      <option>BarcodeScanner/UnLock</option>
+      <option>CashDrawer/Open</option>
+      <option>CashDrawer/Close</option>
+      <option>CashDrawer/IsOpen</option>
+      <option>LineDisplay/Lock</option>
+      <option>LineDisplay/DisplayText</option>
+      <option>LineDisplay/ClearDisplay</option>
+      <option>LineDisplay/UnLock</option>
+      <option>Msr/Lock</option>
+      <option>Msr/GetMsrSwipeInfo</option>
+      <option>Msr/UnLock</option>
+      <option>PinPad/Lock</option>
+      <option>PinPad/GetPinEntry</option>
+      <option>PinPad/CancelOperation</option>
+      <option>PinPad/Unlock</option>
+      <option>Printer/Print</option>
+      <option>Scale/Read</option>
+      <option>SignatureCapture/Lock</option>
+      <option>SignatureCapture/GetSignature</option>
+      <option>SignatureCapture/CancelOperation</option>
+      <option>SignatureCapture/Unlock</option>
+      <option>RemoteOrderDisplay/DisplayMessage</option>
+      <option>RemoteOrderDisplay/ClearDisplay</option>
+      <option>Light/SwitchOn</option>
+      <option>Light/SwitchOff</option>
+      <option>CoinDispenser/DispenseChange</option>
+      <option>PaymentTerminal/Lock</option>
+      <option>PaymentTerminal/UpdateLineItems</option>
+      <option>PaymentTerminal/AuthorizePayment</option>
+      <option>PaymentTerminal/CapturePayment</option>
+      <option>PaymentTerminal/RefundPayment</option>
+      <option>PaymentTerminal/VoidPayment</option>
+      <option>PaymentTerminal/Unlock</option>
+    </select>
+    <button type="button" class="act" id="btn-station-run">Call</button>
+    <pre id="station-result" class="dev-status">—</pre>
+  </section>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>IIGCore.HardwareStation.PosTerminalWeb</RootNamespace>
+    <AssemblyName>CPOSPS</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+
+    <!-- NuGet package identity -->
+    <PackageId>CPOSPS</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>CPOSPS contributors</Authors>
+    <Company>CPOSPS</Company>
+    <Description>Chrome POS Peripheral Simulator — Hardware Station PosTerminal.Web engine (in-process) served on the Hardware Station HTTP surface. Requires Microsoft Dynamics 365 Commerce Hardware Station SDK packages from the private Dynamics Commerce feed (not redistributed).</Description>
+    <PackageTags>dynamics;commerce;hardware-station;pos;peripheral;simulator;cposps</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/shadowchamber/CPOSPS</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/shadowchamber/CPOSPS</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- Do not pack Microsoft Commerce DLLs; they come as PackageReference dependencies. -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pinned from source HardwareStation.PosTerminalWeb packages.lock.json -->
+    <PackageReference Include="Microsoft.Dynamics.Commerce.Sdk.HardwareAndPeripherals" Version="9.59.26286.5" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
