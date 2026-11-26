@@ -28,10 +28,12 @@ dotnet pack src/CPOSPS/CPOSPS.csproj -c Release -o artifacts
 CI: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 
 - Triggers: tag `v*` or `workflow_dispatch`
-- Secret: `NUGET_API_KEY`
+- Auth: NuGet Trusted Publishing (OIDC) via `NuGet/login@v1` — no long-lived `NUGET_API_KEY`
+- GitHub Environment: `production` (must exist on the repo; matches nuget.org policy)
+- nuget.org user: `shadowchamber`
 - Push URL: `https://api.nuget.org/v3/index.json`
 
-Manual:
+Manual (local API key still fine):
 
 ```powershell
 dotnet nuget push artifacts\CPOSPS.*.nupkg `

@@ -14,6 +14,10 @@ on:
 jobs:
   pack-and-publish:
     runs-on: windows-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         shell: pwsh
@@ -69,17 +73,18 @@ jobs:
             artifacts/*.nupkg
             artifacts/*.snupkg
 
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: shadowchamber
+
       - name: Push to nuget.org
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          if (-not $env:NUGET_API_KEY) {
-            throw 'NUGET_API_KEY secret is not set. Add it under repository Secrets.'
-          }
           Get-ChildItem artifacts -Filter *.nupkg | ForEach-Object {
             Write-Host "Pushing $($_.Name)"
             dotnet nuget push $_.FullName `
-              --api-key $env:NUGET_API_KEY `
+              --api-key ${{ steps.login.outputs.NUGET_API_KEY }} `
               --source https://api.nuget.org/v3/index.json `
               --skip-duplicate
           }
