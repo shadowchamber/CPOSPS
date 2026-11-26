@@ -31,7 +31,14 @@ Chrome/Edge choose panel side in browser settings (Appearance → Side panel), n
 
 ## Chrome Web Store
 
-See [docs/chrome-web-store.md](../docs/chrome-web-store.md) for listing checklist, privacy page, screenshots, and zip pack steps. Privacy policy: [privacy.html](privacy.html).
+See [docs/chrome-web-store.md](../docs/chrome-web-store.md) for listing checklist, privacy page, screenshots, zip pack, and **GitHub Actions publish** (`Publish Extension` workflow).
+
+```powershell
+pwsh -File extension/scripts/pack-extension.ps1
+# → artifacts/cposps-extension.zip
+```
+
+Privacy policy: [privacy.html](privacy.html) (public listing copy: `docs/privacy.html` → GitHub Pages).
 
 ## Notes
 

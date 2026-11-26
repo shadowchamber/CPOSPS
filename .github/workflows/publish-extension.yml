@@ -1,0 +1,114 @@
+name: Publish Extension
+
+# Upload (and optionally publish) the Chrome extension to Chrome Web Store.
+#
+# Triggers:
+# - tag extension-v*  → pack + upload + publish
+# - workflow_dispatch  → pack + upload; publish only if publish_live=true
+#
+# Required GitHub Actions secrets:
+#   CHROME_EXTENSION_ID   — item / extension id from Web Store dashboard
+#   CHROME_CLIENT_ID      — Google Cloud OAuth desktop client id
+#   CHROME_CLIENT_SECRET  — OAuth client secret
+#   CHROME_REFRESH_TOKEN  — from: npx chrome-webstore-upload-keys
+#   CHROME_PUBLISHER_ID   — publisher UUID (dashboard URL path), e.g. 23340994-fe66-4dbb-9a44-c08e312ff1bf
+#
+# Setup: docs/chrome-web-store.md
+
+on:
+  push:
+    tags:
+      - 'extension-v*'
+  workflow_dispatch:
+    inputs:
+      publish_live:
+        description: 'Also publish the uploaded build (submit for review / go live)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  pack-and-publish:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify extension branding
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $m = Get-Content extension/manifest.json -Raw | ConvertFrom-Json
+          if ($m.name -ne 'CPOSPS') { throw "manifest name expected CPOSPS, got $($m.name)" }
+          if (-not $m.version) { throw 'manifest.json missing version' }
+          foreach ($icon in @('icons/icon16.png','icons/icon32.png','icons/icon48.png','icons/icon128.png')) {
+            if (-not (Test-Path "extension/$icon")) { throw "missing extension/$icon" }
+          }
+          $js = Get-Content extension/options.js -Raw
+          if ($js -notmatch 'https://localhost:450/HardwareStation') {
+            throw 'options.js default API base must be https://localhost:450/HardwareStation'
+          }
+          Write-Host "Extension OK: $($m.name) v$($m.version)"
+
+      - name: Pack extension zip
+        id: pack
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $zip = & pwsh -File extension/scripts/pack-extension.ps1
+          if ($LASTEXITCODE -ne 0) { throw "pack-extension.ps1 failed with exit $LASTEXITCODE" }
+          if (-not (Test-Path $zip)) { throw "zip not created: $zip" }
+          "zip=$zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "version=$((Get-Content extension/manifest.json -Raw | ConvertFrom-Json).version)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cposps-extension
+          path: artifacts/cposps-extension.zip
+          if-no-files-found: error
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Upload to Chrome Web Store
+        env:
+          EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          ZIP: ${{ steps.pack.outputs.zip }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($name in @('EXTENSION_ID','CLIENT_ID','CLIENT_SECRET','REFRESH_TOKEN','PUBLISHER_ID')) {
+            if (-not [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) { continue }
+            throw "Missing secret/env $name. See docs/chrome-web-store.md"
+          }
+          # Auth via CLIENT_ID / CLIENT_SECRET / REFRESH_TOKEN / PUBLISHER_ID env (required by CLI).
+          npx --yes chrome-webstore-upload-cli@3 upload `
+            --source $env:ZIP `
+            --extension-id $env:EXTENSION_ID `
+            --publisher-id $env:PUBLISHER_ID
+          if ($LASTEXITCODE -ne 0) { throw "chrome-webstore-upload-cli upload failed with exit $LASTEXITCODE" }
+
+      - name: Publish to Chrome Web Store
+        if: github.event_name == 'push' || inputs.publish_live == true
+        env:
+          EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          npx --yes chrome-webstore-upload-cli@3 publish `
+            --extension-id $env:EXTENSION_ID `
+            --publisher-id $env:PUBLISHER_ID
+          if ($LASTEXITCODE -ne 0) { throw "chrome-webstore-upload-cli publish failed with exit $LASTEXITCODE" }

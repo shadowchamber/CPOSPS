@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CPOSPS — Privacy</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; color: #1a1a1a; }
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.1rem; margin-top: 1.5rem; }
+    code { background: #f3f3f3; padding: 0.1em 0.35em; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>CPOSPS privacy policy</h1>
+  <p>Last updated: 2026-11-26</p>
+
+  <p>
+    <strong>CPOSPS</strong> (Chrome POS Peripheral Simulator) is a browser extension that lets you
+    control simulated POS peripherals by calling a Hardware Station HTTP API that you configure.
+  </p>
+
+  <h2>Data we store</h2>
+  <ul>
+    <li>API base URL (for example <code>https://localhost:450/HardwareStation</code>) in <code>chrome.storage.sync</code>.</li>
+    <li>Optional UI preferences such as theme in <code>chrome.storage.sync</code>.</li>
+  </ul>
+  <p>These values stay in your browser profile. They are not sent to CPOSPS authors.</p>
+
+  <h2>Network</h2>
+  <p>
+    The extension only contacts the Hardware Station (or other host) that you set as the API base.
+    Default host permissions cover <code>localhost</code> and <code>127.0.0.1</code>.
+    Other hosts require your approval via optional host permission when you save Options.
+  </p>
+
+  <h2>What we do not collect</h2>
+  <ul>
+    <li>No analytics, advertising, or third-party trackers in the extension itself.</li>
+    <li>No account sign-in to CPOSPS.</li>
+    <li>No sale of personal data.</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <p>
+    For privacy questions about this extension, open an issue on the
+    <a href="https://github.com/shadowchamber/CPOSPS">CPOSPS repository</a>.
+  </p>
+</body>
+</html>

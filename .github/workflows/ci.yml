@@ -50,10 +50,27 @@ jobs:
 
       - name: Verify extension branding
         run: |
+          $ErrorActionPreference = 'Stop'
           $m = Get-Content extension/manifest.json -Raw | ConvertFrom-Json
           if ($m.name -ne 'CPOSPS') { throw "manifest name expected CPOSPS, got $($m.name)" }
           $js = Get-Content extension/options.js -Raw
           if ($js -notmatch 'https://localhost:450/HardwareStation') {
             throw 'options.js default API base must be https://localhost:450/HardwareStation'
           }
+          foreach ($icon in @('icons/icon16.png','icons/icon32.png','icons/icon48.png','icons/icon128.png')) {
+            if (-not (Test-Path "extension/$icon")) { throw "missing extension/$icon" }
+          }
           Write-Host 'Extension checks OK'
+
+      - name: Pack extension zip
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & pwsh -File extension/scripts/pack-extension.ps1
+          if ($LASTEXITCODE -ne 0) { throw "pack-extension.ps1 failed with exit $LASTEXITCODE" }
+
+      - name: Upload extension zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: cposps-extension
+          path: artifacts/cposps-extension.zip
+          if-no-files-found: error
