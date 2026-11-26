@@ -59,11 +59,13 @@ jobs:
 
       - name: Pack
         run: |
+          $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
           $args = @('pack','src/CPOSPS/CPOSPS.csproj','-c','Release','-o','artifacts','--no-restore')
           $v = '${{ steps.ver.outputs.version }}'.Trim()
           if ($v) { $args += "/p:Version=$v"; $args += "/p:PackageVersion=$v" }
           & dotnet @args
+          if ($LASTEXITCODE -ne 0) { throw "dotnet pack failed with exit $LASTEXITCODE" }
 
       - name: Upload nupkg
         uses: actions/upload-artifact@v4
@@ -72,6 +74,7 @@ jobs:
           path: |
             artifacts/*.nupkg
             artifacts/*.snupkg
+          if-no-files-found: error
 
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
@@ -80,11 +83,18 @@ jobs:
           user: shadowchamber
 
       - name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
-          Get-ChildItem artifacts -Filter *.nupkg | ForEach-Object {
-            Write-Host "Pushing $($_.Name)"
-            dotnet nuget push $_.FullName `
-              --api-key ${{ steps.login.outputs.NUGET_API_KEY }} `
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:NUGET_API_KEY) { throw 'NuGet OIDC login did not produce NUGET_API_KEY' }
+          $pkgs = @(Get-ChildItem -Path artifacts -Filter *.nupkg -ErrorAction Stop)
+          if ($pkgs.Count -eq 0) { throw 'No .nupkg files in artifacts/ — nothing to push' }
+          foreach ($pkg in $pkgs) {
+            Write-Host "Pushing $($pkg.Name)"
+            & dotnet nuget push $pkg.FullName `
+              --api-key $env:NUGET_API_KEY `
               --source https://api.nuget.org/v3/index.json `
               --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw "dotnet nuget push failed with exit $LASTEXITCODE for $($pkg.Name)" }
           }
