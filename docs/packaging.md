@@ -7,7 +7,7 @@
 | PackageId | **CPOSPS** |
 | Target | `netstandard2.0` |
 | Project | `src/CPOSPS/CPOSPS.csproj` |
-| Feed | [nuget.org](https://www.nuget.org/packages/CPOSPS) |
+| Feed | GitHub Packages (`nuget.pkg.github.com/shadowchamber`) + [nuget.org](https://www.nuget.org/packages/CPOSPS) when configured |
 
 ## What is / is not in the nupkg
 
@@ -39,8 +39,8 @@ Workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 | Auth | NuGet Trusted Publishing (OIDC) via `NuGet/login@v1` — no long-lived API key in secrets |
 | GitHub Environment | `production` (must exist; matches nuget.org trusted-publishing policy) |
 | Secret | `NUGET_USER` — nuget.org **profile name** (not email) |
-| Push | nuget.org (`https://api.nuget.org/v3/index.json`) — required for host consume |
-| Also | GitHub Packages (`nuget.pkg.github.com/<owner>`) — always attempted first (uses `GITHUB_TOKEN`) |
+| Push (always) | GitHub Packages `https://nuget.pkg.github.com/shadowchamber/index.json` (`GITHUB_TOKEN`) |
+| Push (when auth OK) | nuget.org — needs Trusted Publishing + `NUGET_USER`, or `NUGET_API_KEY` |
 
 ### One-time setup
 
@@ -84,8 +84,19 @@ dotnet nuget push artifacts\CPOSPS.*.nupkg `
 
 ## Consume from a Hardware Station host (e.g. IIGCore)
 
-1. `nuget.config`: restore **CPOSPS** from **nuget.org** (map package id `CPOSPS` to that source). Keep **dynamics365-commerce** for `Microsoft.Dynamics.Commerce.*`.
-2. Central version / PackageReference:
+1. `nuget.config`: restore **CPOSPS** from **GitHub Packages** (or nuget.org once that publish succeeds). Map package id `CPOSPS` only to that source. Keep **dynamics365-commerce** for `Microsoft.Dynamics.Commerce.*`.
+2. For GitHub Packages, set env `NUGET_GITHUB_TOKEN` to a PAT with `read:packages` (CI: `GITHUB_TOKEN`). Example credential entry:
+
+```xml
+<packageSourceCredentials>
+  <github-cposps>
+    <add key="Username" value="YOUR_GITHUB_USERNAME" />
+    <add key="ClearTextPassword" value="%NUGET_GITHUB_TOKEN%" />
+  </github-cposps>
+</packageSourceCredentials>
+```
+
+3. Central version / PackageReference:
 
 ```xml
 <PackageVersion Include="CPOSPS" Version="1.1.3" />
@@ -93,8 +104,8 @@ dotnet nuget push artifacts\CPOSPS.*.nupkg `
 <PackageReference Include="CPOSPS" />
 ```
 
-3. Do **not** add a local `artifacts` folder source or a host-side Promote target — `buildTransitive/CPOSPS.targets` handles composition.
-4. Build/install the Hardware Station (or Store Commerce) extension as usual; confirm `extensions.config` lists `CPOSPS`.
+4. Do **not** add a local `artifacts` folder source or a host-side Promote target — `buildTransitive/CPOSPS.targets` handles composition.
+5. Build/install the Hardware Station (or Store Commerce) extension as usual; confirm `extensions.config` lists `CPOSPS`.
 
 ## Version pins (dependencies)
 

@@ -36,7 +36,7 @@ POST https://localhost:450/HardwareStation/PTWLightDevice/GreenLight
 
 ### Consuming the NuGet package
 
-1. Restore **CPOSPS** from [nuget.org](https://www.nuget.org/packages/CPOSPS) (see [packaging.md](packaging.md) for GitHub Actions publish).
+1. Restore **CPOSPS** from GitHub Packages (or nuget.org) — see [packaging.md](packaging.md).
 2. `PackageReference` **CPOSPS** from the Hardware Station extension project. The package’s `buildTransitive` targets promote `CPOSPS` into `extensions.config` composition automatically.
 3. Use hardware profile **HW_PTW** (or any profile) with device names `PTW*`. Do **not** register those names under ServiceOPOS.
 
