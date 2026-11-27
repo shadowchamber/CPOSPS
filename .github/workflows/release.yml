@@ -115,10 +115,7 @@ jobs:
             $auth = 'NUGET_API_KEY secret'
           }
           if (-not $key) {
-            throw @"
-nuget.org auth unavailable (OIDC login outcome: ${{ steps.login.outcome }}).
-Set NUGET_USER + Trusted Publishing, or NUGET_API_KEY. GitHub Packages push already ran.
-"@
+            throw "nuget.org auth unavailable (OIDC login outcome: ${{ steps.login.outcome }}). Set NUGET_USER + Trusted Publishing, or NUGET_API_KEY. GitHub Packages push already ran."
           }
           Write-Host "Pushing to nuget.org with $auth"
           $pkgs = @(Get-ChildItem -Path artifacts -Filter *.nupkg -ErrorAction Stop)
