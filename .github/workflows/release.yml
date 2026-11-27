@@ -67,6 +67,7 @@ jobs:
           if ($v) { $args += "/p:Version=$v"; $args += "/p:PackageVersion=$v" }
           & dotnet @args
           if ($LASTEXITCODE -ne 0) { throw "dotnet pack failed with exit $LASTEXITCODE" }
+          Get-ChildItem artifacts | ForEach-Object { Write-Host $_.Name }
 
       - name: Upload nupkg
         uses: actions/upload-artifact@v4
@@ -101,8 +102,6 @@ jobs:
           user: ${{ secrets.NUGET_USER }}
 
       - name: Push to nuget.org
-        id: nuget_org
-        continue-on-error: true
         env:
           OIDC_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
           NUGET_API_KEY_SECRET: ${{ secrets.NUGET_API_KEY }}
@@ -115,20 +114,35 @@ jobs:
             $auth = 'NUGET_API_KEY secret'
           }
           if (-not $key) {
-            throw "nuget.org auth unavailable (OIDC login outcome: ${{ steps.login.outcome }}). Set NUGET_USER + Trusted Publishing, or NUGET_API_KEY. GitHub Packages push already ran."
+            throw "nuget.org auth unavailable (OIDC login outcome: ${{ steps.login.outcome }}). Set NUGET_USER + Trusted Publishing, or NUGET_API_KEY."
           }
-          Write-Host "Pushing to nuget.org with $auth"
+          Write-Host "Pushing to nuget.org with $auth (key length $($key.Length))"
           $pkgs = @(Get-ChildItem -Path artifacts -Filter *.nupkg -ErrorAction Stop)
           foreach ($pkg in $pkgs) {
-            Write-Host "Pushing $($pkg.Name)"
+            Write-Host "Pushing $($pkg.FullName)"
             & dotnet nuget push $pkg.FullName `
               --api-key $key `
               --source https://api.nuget.org/v3/index.json `
               --skip-duplicate
             if ($LASTEXITCODE -ne 0) { throw "dotnet nuget push failed with exit $LASTEXITCODE for $($pkg.Name)" }
           }
-
-      - name: Require nuget.org publish
-        if: steps.nuget_org.outcome != 'success'
-        run: |
-          throw 'nuget.org publish failed. Fix Trusted Publishing / NUGET_USER / NUGET_API_KEY and re-run Release. See docs/packaging.md.'
+          $ver = '${{ steps.ver.outputs.version }}'.Trim()
+          if (-not $ver) {
+            [xml]$csproj = Get-Content src/CPOSPS/CPOSPS.csproj
+            $ver = $csproj.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          }
+          $url = "https://api.nuget.org/v3-flatcontainer/cposps/$ver/cposps.$ver.nupkg"
+          Write-Host "Verifying $url"
+          $ok = $false
+          for ($i = 1; $i -le 18; $i++) {
+            try {
+              Invoke-WebRequest -Uri $url -Method Head -UseBasicParsing | Out-Null
+              $ok = $true
+              Write-Host "nuget.org has cposps $ver"
+              break
+            } catch {
+              Write-Host "Attempt $i : not visible yet"
+              Start-Sleep -Seconds 10
+            }
+          }
+          if (-not $ok) { throw "Push reported success but $url is still 404 after wait. Check nuget.org ownership / Trusted Publishing." }

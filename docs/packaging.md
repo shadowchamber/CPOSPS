@@ -65,11 +65,11 @@ Workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 2. Tag and push:
 
 ```powershell
-git tag v1.1.2
-git push origin v1.1.2
+git tag v1.1.3
+git push origin v1.1.3
 ```
 
-Or **Actions → Release → Run workflow** and set version override (e.g. `1.1.2`).
+Or **Actions → Release → Run workflow** and set version override (e.g. `1.1.3`).
 
 3. Confirm the **Release** run is green and [nuget.org/packages/CPOSPS](https://www.nuget.org/packages/CPOSPS) shows the new version.
 
@@ -88,7 +88,7 @@ dotnet nuget push artifacts\CPOSPS.*.nupkg `
 2. Central version / PackageReference:
 
 ```xml
-<PackageVersion Include="CPOSPS" Version="1.1.2" />
+<PackageVersion Include="CPOSPS" Version="1.1.3" />
 <!-- in Hardware Station csproj: -->
 <PackageReference Include="CPOSPS" />
 ```
