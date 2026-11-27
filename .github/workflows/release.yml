@@ -99,7 +99,8 @@ jobs:
         id: login
         continue-on-error: true
         with:
-          user: ${{ secrets.NUGET_USER }}
+          # nuget.org package owner; override with repo secret NUGET_USER if needed
+          user: ${{ secrets.NUGET_USER || 'shadowchamber' }}
 
       - name: Push to nuget.org
         env:

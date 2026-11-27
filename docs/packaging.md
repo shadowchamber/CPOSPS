@@ -47,9 +47,10 @@ Workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 1. On nuget.org: enable **Trusted Publishing** for package **CPOSPS**, repository `shadowchamber/CPOSPS`, workflow `release.yml`, environment `production`.
 2. In GitHub repo **Settings → Environments**: create `production`.
 3. In GitHub repo **Settings → Secrets and variables → Actions**:
-   - `NUGET_USER` — nuget.org **profile name** (required for OIDC trusted publishing)
+   - `NUGET_USER` — optional; defaults to nuget.org owner `shadowchamber` in `release.yml`
    - `NUGET_API_KEY` — optional fallback nuget.org API key if OIDC login fails
-4. Dynamics feed for restore: CI uses [`nuget.config`](../nuget.config). If the private feed needs auth in Actions, add a PAT secret and wire it in the Restore step (see comment in `ci.yml`).
+4. On nuget.org → package **CPOSPS** → **Trusted Publishing**: allow GitHub repo `shadowchamber/CPOSPS`, workflow `release.yml`, environment `production`.
+5. Dynamics feed for restore: CI uses [`nuget.config`](../nuget.config). If the private feed needs auth in Actions, add a PAT secret and wire it in the Restore step (see comment in `ci.yml`).
 
 ### Troubleshooting Release failures
 
@@ -65,11 +66,11 @@ Workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 2. Tag and push:
 
 ```powershell
-git tag v1.1.3
-git push origin v1.1.3
+git tag v1.1.4
+git push origin v1.1.4
 ```
 
-Or **Actions → Release → Run workflow** and set version override (e.g. `1.1.3`).
+Or **Actions → Release → Run workflow** and set version override (e.g. `1.1.4`).
 
 3. Confirm the **Release** run is green and [nuget.org/packages/CPOSPS](https://www.nuget.org/packages/CPOSPS) shows the new version.
 
@@ -99,7 +100,7 @@ dotnet nuget push artifacts\CPOSPS.*.nupkg `
 3. Central version / PackageReference:
 
 ```xml
-<PackageVersion Include="CPOSPS" Version="1.1.3" />
+<PackageVersion Include="CPOSPS" Version="1.1.4" />
 <!-- in Hardware Station csproj: -->
 <PackageReference Include="CPOSPS" />
 ```

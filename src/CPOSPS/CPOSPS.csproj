@@ -10,7 +10,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>CPOSPS</PackageId>
-    <Version>1.1.3</Version>
+    <Version>1.1.4</Version>
     <Authors>CPOSPS contributors</Authors>
     <Company>CPOSPS</Company>
     <Description>Chrome POS Peripheral Simulator — Hardware Station PosTerminal.Web engine (in-process) served on the Hardware Station HTTP surface. Requires Microsoft Dynamics 365 Commerce Hardware Station SDK packages from the private Dynamics Commerce feed (not redistributed).</Description>
