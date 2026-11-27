@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.Win32;
 
 namespace IIGCore.HardwareStation.PosTerminalWeb.Engine
 {
@@ -15,7 +14,7 @@ public sealed class OposPipe : IOposBus
     private readonly SimulatorEngine _engine;
     private readonly string _folder;
     private readonly FileSystemWatcher _watcher;
-    private readonly HashSet<string> _lights = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "MockOPOSLight" };
+    private readonly HashSet<string> _lights = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "MockOPOSLight", "PTWLight" };
     private readonly Dictionary<string, string> _seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     public OposPipe(SimulatorEngine engine, string folder)
@@ -23,7 +22,7 @@ public sealed class OposPipe : IOposBus
         _engine = engine;
         _folder = folder;
         Directory.CreateDirectory(folder);
-        try { LoadLightNames(); } catch { /* registry may be unavailable under IIS */ }
+        LoadLightNames();
         try
         {
             _watcher = new FileSystemWatcher(folder)
@@ -107,14 +106,9 @@ public sealed class OposPipe : IOposBus
 
     private void LoadLightNames()
     {
-        foreach (var hive in new[] { @"SOFTWARE\WOW6432Node\OLEforRetail\ServiceOPOS\Lights", @"SOFTWARE\OLEforRetail\ServiceOPOS\Lights" })
-        {
-            using var key = Registry.LocalMachine.OpenSubKey(hive);
-            if (key == null)
-                continue;
-            foreach (var name in key.GetSubKeyNames())
-                _lights.Add(name);
-        }
+        // Virtual-only: never read ServiceOPOS. Built-in names cover POS MockOPOS + PTW profiles.
+        _lights.Add("MockOPOSLight");
+        _lights.Add("PTWLight");
     }
 
     private void Ingest(string path)

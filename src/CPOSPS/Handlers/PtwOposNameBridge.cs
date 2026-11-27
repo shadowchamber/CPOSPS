@@ -8,12 +8,11 @@ using Microsoft.Dynamics.Commerce.Runtime.Messages;
 namespace IIGCore.HardwareStation.PosTerminalWeb.Handlers
 {
     /// <summary>
-    /// Shared helpers for OPOS-chain bridges that activate only when DeviceName starts with PTW.
+    /// Tracks active PTW* device names for virtual peripheral hosts (Open/Lock → Close/Unlock).
     /// </summary>
     /// <remarks>
-    /// Handler instances are not guaranteed sticky across Open → Print. Print/Close omit DeviceName,
-    /// so active PTW names are stored in a static map keyed by peripheral kind. Otherwise the bridge
-    /// ExecuteNext's back into CustomOpos* → stack overflow (0xc00000fd) / IIS w3wp crash.
+    /// Handler instances are not sticky across Open → Print. Print/Close often omit DeviceName,
+    /// so the active PTW name is kept per peripheral kind for the virtual host.
     /// </remarks>
     public static class PtwOposNameBridge
     {

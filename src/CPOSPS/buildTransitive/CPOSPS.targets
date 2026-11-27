@@ -1,0 +1,23 @@
+<Project>
+  <!--
+    Dynamics Commerce Sdk.HardwareAndPeripherals marks PackageReference DLLs as
+    HardwareStationExternalAssembly (copied, not composed). CPOSPS must be in
+    extensions.config composition, so promote after GetHardwareStationPackagingOutput.
+    Consuming projects only need PackageReference Include="CPOSPS" — no Promote target.
+  -->
+  <Target Name="CpospsPromoteToHardwareStationAssembly"
+          AfterTargets="GetHardwareStationPackagingOutput"
+          Condition="'$(CommercePackagingOutputTypeHardwareStationAssembly)' != '' AND '$(CommercePackagingOutputTypeHardwareStationExternalAssembly)' != ''">
+    <ItemGroup>
+      <_CpospsExternal Include="@(CommercePackagingOutputsWithTargetPath)"
+                       Condition="'%(Filename)' == 'CPOSPS' AND '%(OutputType)' == '$(CommercePackagingOutputTypeHardwareStationExternalAssembly)'" />
+      <CommercePackagingOutputsWithTargetPath Remove="@(_CpospsExternal)" />
+      <CommercePackagingOutputsWithTargetPath Include="@(_CpospsExternal)">
+        <OutputType>$(CommercePackagingOutputTypeHardwareStationAssembly)</OutputType>
+      </CommercePackagingOutputsWithTargetPath>
+    </ItemGroup>
+    <Message Text="[CPOSPS] Promoted CPOSPS to HardwareStationAssembly for extensions.config composition."
+             Condition="'@(_CpospsExternal)' != ''"
+             Importance="high" />
+  </Target>
+</Project>

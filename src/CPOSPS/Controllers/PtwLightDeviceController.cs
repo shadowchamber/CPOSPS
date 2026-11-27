@@ -5,13 +5,18 @@ using Microsoft.Dynamics.Commerce.Runtime.Hosting.Contracts;
 namespace IIGCore.HardwareStation.PosTerminalWeb.Controllers
 {
     /// <summary>
-    /// Light device HTTP surface that proxies to PosTerminal.Web Light/SwitchOn|SwitchOff.
-    /// Aligns with the existing LightDeviceController call shape from POS.
+    /// Virtual traffic-light HTTP surface. No OPOS / ServiceOPOS.
+    /// POS LightDeviceManager calls this controller when the hardware-profile device name starts with PTW.
     /// </summary>
     [RoutePrefix("PTWLightDevice")]
     public sealed class PtwLightDeviceController : IController
     {
         private static string _deviceName = PosTerminalWebConstants.Light;
+
+        private const int ColorGreen = 65280;
+        private const int ColorRed = 16711680;
+        private const int ColorOrange = 16753920;
+        private const int ColorWhite = 16777215;
 
         [HttpPost]
         public Task<bool> SetDeviceName(PtwLightRequest request)
@@ -51,55 +56,42 @@ namespace IIGCore.HardwareStation.PosTerminalWeb.Controllers
         }
 
         [HttpPost]
-        public Task<bool> GreenLight(PtwLightRequest request)
-        {
-            if (request == null)
-            {
-                request = new PtwLightRequest();
-            }
-
-            request.Color = 65280;
-            return SwitchOn(request);
-        }
+        public Task<bool> GreenLight(PtwLightRequest request) => SwitchOn(WithColor(request, ColorGreen));
 
         [HttpPost]
-        public Task<bool> RedLight(PtwLightRequest request)
-        {
-            if (request == null)
-            {
-                request = new PtwLightRequest();
-            }
-
-            request.Color = 16711680;
-            return SwitchOn(request);
-        }
+        public Task<bool> RedLight(PtwLightRequest request) => SwitchOn(WithColor(request, ColorRed));
 
         [HttpPost]
-        public Task<bool> OrangeLight(PtwLightRequest request)
-        {
-            if (request == null)
-            {
-                request = new PtwLightRequest();
-            }
-
-            request.Color = 16753920;
-            return SwitchOn(request);
-        }
+        public Task<bool> OrangeLight(PtwLightRequest request) => SwitchOn(WithColor(request, ColorOrange));
 
         [HttpPost]
-        public Task<bool> WhiteLight(PtwLightRequest request)
-        {
-            if (request == null)
-            {
-                request = new PtwLightRequest();
-            }
-
-            request.Color = 16777215;
-            return SwitchOn(request);
-        }
+        public Task<bool> WhiteLight(PtwLightRequest request) => SwitchOn(WithColor(request, ColorWhite));
 
         [HttpPost]
         public Task<bool> Close(PtwLightRequest request) => SwitchOff(request);
+
+        [HttpPost]
+        public Task<bool> BlinkOn(PtwLightRequest request)
+        {
+            var body = WithColor(request, ColorOrange);
+            body.BlinkOn = body.BlinkOn ?? 500;
+            body.BlinkOff = body.BlinkOff ?? 500;
+            return SwitchOn(body);
+        }
+
+        [HttpPost]
+        public Task<bool> BlinkOff(PtwLightRequest request) => GreenLight(request);
+
+        private static PtwLightRequest WithColor(PtwLightRequest request, int color)
+        {
+            if (request == null)
+            {
+                request = new PtwLightRequest();
+            }
+
+            request.Color = color;
+            return request;
+        }
 
         private static string ResolveDeviceName(PtwLightRequest request)
         {

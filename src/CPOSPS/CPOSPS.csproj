@@ -10,7 +10,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>CPOSPS</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>CPOSPS contributors</Authors>
     <Company>CPOSPS</Company>
     <Description>Chrome POS Peripheral Simulator — Hardware Station PosTerminal.Web engine (in-process) served on the Hardware Station HTTP surface. Requires Microsoft Dynamics 365 Commerce Hardware Station SDK packages from the private Dynamics Commerce feed (not redistributed).</Description>
@@ -29,13 +29,15 @@
   <ItemGroup>
     <!-- Pinned from source HardwareStation.PosTerminalWeb packages.lock.json -->
     <PackageReference Include="Microsoft.Dynamics.Commerce.Sdk.HardwareAndPeripherals" Version="9.59.26286.5" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="buildTransitive\CPOSPS.targets" Pack="true" PackagePath="buildTransitive\CPOSPS.targets" />
   </ItemGroup>
 
 </Project>
+
+

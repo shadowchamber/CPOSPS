@@ -1,7 +1,5 @@
 # Hardware Station install overview
 
-Adapted from the original HardwareStation.PosTerminalWeb README.
-
 ## What CPOSPS provides to HWS
 
 Hardware Station extension with the PosTerminal.Web engine **in-process**, served on the Hardware Station HTTP surface (`IController`).
@@ -9,19 +7,20 @@ Hardware Station extension with the PosTerminal.Web engine **in-process**, serve
 | Surface | How |
 |--|--|
 | PosTerminal API | Controllers under `RoutePrefix("api")` |
-| Device controllers | Light, coin dispenser, remote order display, … |
-| Peripheral handlers (`PTW*`) | In-process `SimulatorEngine.Station(...)` |
+| Device controllers | `PTWLightDevice`, coin dispenser, remote order display, … |
+| Peripheral hosts (`PTW*` names) | In-process `SimulatorEngine.Station(...)` via `PtwProfile*` |
 
 ## Typical install path (host product)
 
-1. Build or restore **CPOSPS** against a machine that can reach the Dynamics Commerce private feed.
-2. Reference `CPOSPS` from your Hardware Station extension / installer project (do **not** copy Microsoft Commerce DLLs into your own nupkg).
-3. Deploy alongside your Store Commerce / Hardware Station extension package using your normal Scale Unit / Hardware Station installer flow.
-4. Confirm the HWS HTTPS endpoint (default port **450**):
+1. Publish or restore **CPOSPS** from nuget.org (see [packaging.md](packaging.md) — GitHub Actions **Release** workflow).
+2. `PackageReference` `CPOSPS` from your Hardware Station extension project (do **not** copy Microsoft Commerce DLLs into your own nupkg; do **not** use a local artifacts feed or host-side Promote MSBuild).
+3. Deploy alongside your Store Commerce / Hardware Station extension package using your normal installer flow.
+4. Confirm `extensions.config` composition includes `CPOSPS`.
+5. Confirm the HWS HTTPS endpoint (default port **450**):
 
    `https://localhost:450/HardwareStation/`
 
-5. Optionally point the **CPOSPS** browser extension at that base URL.
+6. Optionally point the **CPOSPS** browser extension at that base URL.
 
 ## Runtime folders
 
@@ -31,7 +30,7 @@ Hardware Station extension with the PosTerminal.Web engine **in-process**, serve
 | `PosTerminalWeb__OposFolder` | `{ContentRoot}/App_Data/opos` |
 | `PosTerminalWeb__WatchOpos` | `true` |
 
-Ensure the content root exists and is writable by the Hardware Station service account if OPOS simulation files are used.
+Ensure the content root exists and is writable by the Hardware Station service account if lab fixture files are used.
 
 ## Self-signed HTTPS
 

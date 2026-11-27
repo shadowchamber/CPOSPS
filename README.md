@@ -4,7 +4,7 @@
 
 | Component | Path | Package / product |
 |-----------|------|-------------------|
-| NuGet library | `src/CPOSPS/` | **CPOSPS** (`PackageId`) |
+| NuGet library | `src/CPOSPS/` | **[CPOSPS](https://www.nuget.org/packages/CPOSPS)** on nuget.org |
 | Browser extension | `extension/` | **CPOSPS** (Chrome Web Store listing name) |
 
 Namespaces remain `IIGCore.HardwareStation.PosTerminalWeb.*` for drop-in compatibility with existing Hardware Station consumers.
@@ -15,21 +15,24 @@ Namespaces remain `IIGCore.HardwareStation.PosTerminalWeb.*` for drop-in compati
 - Access to the **Dynamics 365 Commerce private feed** for `Microsoft.Dynamics.Commerce.*` packages
 - See sample [`nuget.config`](nuget.config) — CPOSPS does **not** redistribute Microsoft Commerce DLLs
 
-Pinned dependency versions (from source `packages.lock.json`):
+Pinned dependency versions:
 
 - `Microsoft.Dynamics.Commerce.Sdk.HardwareAndPeripherals` **9.59.26286.5**
 - `Newtonsoft.Json` **13.0.3**
-- `Microsoft.Win32.Registry` **5.0.0**
 
 ## Quick start (library)
 
 ```powershell
-dotnet restore CPOSPS.sln
+dotnet restore CPOSPS.sln --configfile nuget.config
 dotnet build CPOSPS.sln -c Release
 dotnet pack src/CPOSPS/CPOSPS.csproj -c Release -o artifacts
 ```
 
-Reference the package from your Hardware Station extension project, or add a project reference to `src/CPOSPS/CPOSPS.csproj`.
+Host projects: `PackageReference` **CPOSPS** from nuget.org. The package ships `buildTransitive/CPOSPS.targets` so `CPOSPS` is composed into Hardware Station `extensions.config` automatically.
+
+## Publish
+
+GitHub Actions **Release** workflow (tag `v*` or `workflow_dispatch`) pushes to nuget.org via NuGet Trusted Publishing (OIDC). Details: [docs/packaging.md](docs/packaging.md).
 
 ## Extension
 

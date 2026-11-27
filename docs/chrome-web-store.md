@@ -5,7 +5,7 @@ Dashboard: [Chrome Web Store Developer Dashboard](https://chrome.google.com/webs
 ## Product
 
 - **Name:** CPOSPS
-- **Short description:** Side panel for Hardware Station PosTerminal peripherals (scanner, drawers, MSR, PIN, scale, printer, light, and more).
+- **Short description / Store summary (≤132 chars):** Side panel to drive simulated Dynamics Hardware Station POS peripherals against a local PosTerminal API.
 - **Default API base:** `https://localhost:450/HardwareStation`
 - **Privacy policy URL (listing):** host `docs/privacy.html` (or `extension/privacy.html`) on a public HTTPS URL you control, then paste that URL in the listing.
 
@@ -22,15 +22,20 @@ Dashboard: [Chrome Web Store Developer Dashboard](https://chrome.google.com/webs
 
 ## Store description draft
 
+Avoid long device/feature keyword lists (Chrome rejects that as metadata spam — “Yellow Argon”).
+
+**Summary (≤132 chars):**
 ```
-CPOSPS (Chrome POS Peripheral Simulator) is a side-panel extension for Chrome and Edge that talks to a Dynamics 365 Commerce Hardware Station hosting the PosTerminal API.
+Side panel to drive simulated Dynamics Hardware Station POS peripherals against a local PosTerminal API.
+```
 
-Use it to drive simulated peripherals: barcode scanner, cash drawers, MSR, PIN pad, scale, printer/receipt, lane light, signature, coin dispenser, remote order display, keyboard wedge, and payment terminal helpers.
+**Description (paste into Store listing):**
+```
+CPOSPS is a Chrome side panel for operators who need to exercise a Dynamics 365 Commerce Hardware Station PosTerminal API during development and lab testing.
 
-Default endpoint: https://localhost:450/HardwareStation
-Change the API base under Options. Other hosts request optional host permission when you save.
+Open the panel to send peripheral and station actions to your Hardware Station, view connection status, and adjust the API base under Options. By default it targets a local Hardware Station. If you point it at another host, Chrome will ask for optional host permission when you save.
 
-Requires a running Hardware Station with the CPOSPS / PosTerminal.Web library installed. Self-signed HTTPS certificates must be trusted in the browser.
+Requires a running Hardware Station with the CPOSPS library (or equivalent PosTerminal.Web integration) installed. Trust any self-signed HTTPS certificate in the browser profile so the panel can reach the API.
 ```
 
 ## Local zip pack
