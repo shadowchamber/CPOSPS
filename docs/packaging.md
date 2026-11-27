@@ -39,14 +39,25 @@ Workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 | Auth | NuGet Trusted Publishing (OIDC) via `NuGet/login@v1` — no long-lived API key in secrets |
 | GitHub Environment | `production` (must exist; matches nuget.org trusted-publishing policy) |
 | Secret | `NUGET_USER` — nuget.org **profile name** (not email) |
-| Push | `https://api.nuget.org/v3/index.json` |
+| Push | nuget.org (`https://api.nuget.org/v3/index.json`) — required for host consume |
+| Also | GitHub Packages (`nuget.pkg.github.com/<owner>`) — always attempted first (uses `GITHUB_TOKEN`) |
 
 ### One-time setup
 
 1. On nuget.org: enable **Trusted Publishing** for package **CPOSPS**, repository `shadowchamber/CPOSPS`, workflow `release.yml`, environment `production`.
 2. In GitHub repo **Settings → Environments**: create `production`.
-3. In GitHub repo **Settings → Secrets**: set `NUGET_USER` to your nuget.org username.
+3. In GitHub repo **Settings → Secrets and variables → Actions**:
+   - `NUGET_USER` — nuget.org **profile name** (required for OIDC trusted publishing)
+   - `NUGET_API_KEY` — optional fallback nuget.org API key if OIDC login fails
 4. Dynamics feed for restore: CI uses [`nuget.config`](../nuget.config). If the private feed needs auth in Actions, add a PAT secret and wire it in the Restore step (see comment in `ci.yml`).
+
+### Troubleshooting Release failures
+
+| Symptom | Fix |
+|---------|-----|
+| `NuGet login` fails / no API key | Confirm Trusted Publishing policy on nuget.org matches this repo + `release.yml` + `production`. Confirm `NUGET_USER` secret. Or set `NUGET_API_KEY`. |
+| Pack fails on Dynamics restore | Add Dynamics feed auth in CI (see `ci.yml` comment). |
+| Push `409` / conflict | Version already on nuget.org — bump `<Version>` and tag a new `v*`. |
 
 ### Publish a new version
 
@@ -54,11 +65,11 @@ Workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 2. Tag and push:
 
 ```powershell
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.1.1
+git push origin v1.1.1
 ```
 
-Or **Actions → Release → Run workflow** and set version override (e.g. `1.1.0`).
+Or **Actions → Release → Run workflow** and set version override (e.g. `1.1.1`).
 
 3. Confirm the **Release** run is green and [nuget.org/packages/CPOSPS](https://www.nuget.org/packages/CPOSPS) shows the new version.
 
@@ -77,7 +88,7 @@ dotnet nuget push artifacts\CPOSPS.*.nupkg `
 2. Central version / PackageReference:
 
 ```xml
-<PackageVersion Include="CPOSPS" Version="1.1.0" />
+<PackageVersion Include="CPOSPS" Version="1.1.1" />
 <!-- in Hardware Station csproj: -->
 <PackageReference Include="CPOSPS" />
 ```

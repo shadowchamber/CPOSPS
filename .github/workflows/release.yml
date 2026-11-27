@@ -18,6 +18,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      packages: write
     defaults:
       run:
         shell: pwsh
@@ -76,27 +77,61 @@ jobs:
             artifacts/*.snupkg
           if-no-files-found: error
 
-      - name: NuGet login (OIDC → temp API key)
+      - name: Push to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $owner = '${{ github.repository_owner }}'.ToLowerInvariant()
+          $source = "https://nuget.pkg.github.com/$owner/index.json"
+          dotnet nuget remove source github-cposps 2>$null
+          dotnet nuget add source $source --name github-cposps --username azure --password $env:GITHUB_TOKEN --store-password-in-clear-text
+          $pkgs = @(Get-ChildItem -Path artifacts -Filter *.nupkg -ErrorAction Stop)
+          foreach ($pkg in $pkgs) {
+            Write-Host "Pushing $($pkg.Name) to GitHub Packages"
+            & dotnet nuget push $pkg.FullName --api-key $env:GITHUB_TOKEN --source github-cposps --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw "GitHub Packages push failed for $($pkg.Name)" }
+          }
+
+      - name: NuGet login (OIDC to temp API key)
         uses: NuGet/login@v1
         id: login
+        continue-on-error: true
         with:
           user: ${{ secrets.NUGET_USER }}
 
       - name: Push to nuget.org
+        id: nuget_org
+        continue-on-error: true
         env:
-          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
-          NUGET_USER: ${{ secrets.NUGET_USER }}
+          OIDC_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+          NUGET_API_KEY_SECRET: ${{ secrets.NUGET_API_KEY }}
         run: |
           $ErrorActionPreference = 'Stop'
-          if (-not $env:NUGET_USER) { throw 'NUGET_USER secret is not set (nuget.org profile name).' }
-          if (-not $env:NUGET_API_KEY) { throw 'NuGet OIDC login did not produce NUGET_API_KEY' }
+          $key = "$env:OIDC_API_KEY".Trim()
+          $auth = 'OIDC'
+          if (-not $key) {
+            $key = "$env:NUGET_API_KEY_SECRET".Trim()
+            $auth = 'NUGET_API_KEY secret'
+          }
+          if (-not $key) {
+            throw @"
+nuget.org auth unavailable (OIDC login outcome: ${{ steps.login.outcome }}).
+Set NUGET_USER + Trusted Publishing, or NUGET_API_KEY. GitHub Packages push already ran.
+"@
+          }
+          Write-Host "Pushing to nuget.org with $auth"
           $pkgs = @(Get-ChildItem -Path artifacts -Filter *.nupkg -ErrorAction Stop)
-          if ($pkgs.Count -eq 0) { throw 'No .nupkg files in artifacts/ — nothing to push' }
           foreach ($pkg in $pkgs) {
             Write-Host "Pushing $($pkg.Name)"
             & dotnet nuget push $pkg.FullName `
-              --api-key $env:NUGET_API_KEY `
+              --api-key $key `
               --source https://api.nuget.org/v3/index.json `
               --skip-duplicate
             if ($LASTEXITCODE -ne 0) { throw "dotnet nuget push failed with exit $LASTEXITCODE for $($pkg.Name)" }
           }
+
+      - name: Require nuget.org publish
+        if: steps.nuget_org.outcome != 'success'
+        run: |
+          throw 'nuget.org publish failed. Fix Trusted Publishing / NUGET_USER / NUGET_API_KEY and re-run Release. See docs/packaging.md.'
